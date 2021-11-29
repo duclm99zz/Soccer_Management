@@ -20,7 +20,7 @@ const EventDetailedInfo = ({event}) => {
             <Icon name="calendar" size="large" color="teal" />
           </Grid.Column>
           <Grid.Column width={15}>
-            <span>{event.date}</span>
+            <span>{event.date.toString().slice(0, 21)}</span>
           </Grid.Column>
         </Grid>
       </Segment>

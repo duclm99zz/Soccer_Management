@@ -31,7 +31,7 @@ const EventDetailedHeader = ({event}) => {
                   content={event.title}
                   style={{ color: 'pink' }}
                 />
-                <p>{event.date}</p>
+                <p>{event.date.toString().slice(0, 16)}</p>
                 <p>
                   Hosted by <strong>{event.hostedBy}</strong>
                 </p>

@@ -1,9 +1,26 @@
 import React, { Component } from 'react'
-import { Button, Form, Segment } from 'semantic-ui-react'
+import { Button, Form, Segment , Grid, Header} from 'semantic-ui-react'
 import { connect } from 'react-redux'
 import {createEvent, updateEvent} from '../eventActions'
 import cuid from 'cuid'
+import { reduxForm, Field } from 'redux-form'
+import TextInput from '../../../app/common/form/TextInput'
+import TextArea from '../../../app/common/form/TextArea'
+import SelectInput from '../../../app/common/form/SelectInput'
+import {composeValidators, combineValidators, isRequired, hasLengthGreaterThan} from 'revalidate'
+import DateInput from '../../../app/common/form/DateInput'
 
+
+
+
+const category = [
+    {key: 'drinks', text: 'Drinks', value: 'drinks'},
+    {key: 'culture', text: 'Culture', value: 'culture'},
+    {key: 'film', text: 'Film', value: 'film'},
+    {key: 'food', text: 'Food', value: 'food'},
+    {key: 'music', text: 'Music', value: 'music'},
+    {key: 'travel', text: 'Travel', value: 'travel'},
+];
 const mapState = (state, ownProps) => {
   const eventId = ownProps.match.params.id
 
@@ -12,105 +29,113 @@ const mapState = (state, ownProps) => {
   if (eventId && state.events.length > 0) {
     event = state.events.filter(e => e.id === eventId)[0]
   }
-  return {event}
+  return {initialValues: event}
 }
 const mapDispatch = {
   createEvent,
   updateEvent
 }
+
+const validate = combineValidators({
+  title: isRequired({message: 'The event title is required'}),
+  category: isRequired({message: 'The event category is required'}),
+  description: composeValidators(
+    isRequired({message: 'The event description is required'}),
+    hasLengthGreaterThan(4)({message: 'Description needs to be at least 5 charaters'})
+  )(),
+  city: isRequired({message: 'City is required'}),
+  venue: isRequired({message: 'Venue is required'})
+
+}) 
+
+
+
 class EventForm extends Component {
-  state = {...this.props.event}
-  componentDidMount() {
-    if (this.props.selectedEvent !== null) {
-      this.setState({
-        ...this.props.selectedEvent
-      })
-    }
-  }
 
 
-  handleFormSubmit = (evt) => {
-    evt.preventDefault()
-    if (this.state.id) {
-      this.props.updateEvent(this.state)
-      this.props.history.push(`/events/${this.state.id}`)
+  onFormSubmit = (values) => {
+
+    console.log(values)
+    if (this.props.initialValues.id) {
+      this.props.updateEvent(values)
+      this.props.history.push(`/events/${this.props.initialValues.id}`)
     } else {
       const newEvent = {
-        ...this.state,
+        ...values,
         id: cuid(),
-        hostPhotoURL: '/assets/user.png'
+        hostPhotoURL: '/assets/user.png',
+        hostedBy: 'Bob'
       }
       this.props.createEvent(newEvent)
-      this.props.history.push(`/event/${newEvent.id}`)
+      this.props.history.push(`/events/${newEvent.id}`)
     }
     
   }
-  handleInputChange = ({target: {name, value}}) => {
-    this.setState({
-      [name]: value
-    })
-  }
+
   
   
   render() {
-    const {title, venue, city, date, hostedBy} = this.state
+    const {history, initialValues, invalid, submitting, pristine} = this.props
     return (
-      <Segment>
-        <Form onSubmit={this.handleFormSubmit}>
-          <Form.Field>
-            <label>Event Title</label>
-            <input 
-               onChange={this.handleInputChange}
-              name = 'title' 
-              value={title} 
-              placeholder="Event Title"
+      <Grid>
+        <Grid.Column width={10}>
+        <Segment>
+          <Header sub color='teal' content='Event Details' />
+          <Form onSubmit={this.props.handleSubmit(this.onFormSubmit)}>
+            <Field 
+              name='title' 
+              component={TextInput}
+              placeholder='Give your event name'
             />
-          </Form.Field>
-          <Form.Field>
-            <label>Event Date</label>
-            <input 
-              onChange={this.handleInputChange}
-              type="date" 
-              name = 'date' 
-              value={date} 
-              placeholder="Event Date" 
+            <Field 
+              name='category' 
+              component={SelectInput}
+              options={category}
+              multiple={false}
+              placeholder='What is your event about?'
             />
-          </Form.Field>
-          <Form.Field>
-            <label>City</label>
-            <input 
-              onChange={this.handleInputChange}
-              name = 'city'
-              value={city} 
-              placeholder="City event is taking place" 
+            <Field 
+              name='description' 
+              component={TextArea}
+              rows={3}
+              placeholder='Tell us about your event'
             />
-          </Form.Field>
-          <Form.Field>
-            <label>Venue</label>
-            <input 
-              onChange={this.handleInputChange}
-              name='venue'
-              value={venue} 
-              placeholder="Enter the Venue of the event" 
+            <Header sub color='teal' content='Event Location Details' />
+            <Field 
+              name='city' 
+              component={TextInput}
+              placeholder='Event City'
             />
-          </Form.Field>
-          <Form.Field>
-            <label>Hosted By</label>
-            <input 
-              onChange={this.handleInputChange}
-              name='hostedBy' 
-              value={hostedBy} 
-              placeholder="Enter the name of person hosting" 
+            <Field 
+              name='venue' 
+              component={TextInput}
+              placeholder='Event Venue'
             />
-          </Form.Field>
-          <Button positive type="submit">
-            Submit
-          </Button>
-          <Button type="button" onClick={this.props.history.goBack}>Cancel</Button>
-        </Form>
-      </Segment>
+            <Field 
+              name='date' 
+              component={DateInput}
+              dateFormat='dd LLL yyyy  h:mm a'
+              showTimeSelect={true}
+              timeFormat='HH:mm'
+              placeholder='Event Date'
+            />
+            <Button disabled={invalid || submitting || pristine} onClick={this.props.handleSubmit(this.onFormSubmit)} positive type="submit">
+              Submit
+            </Button>
+            <Button 
+              onClick={
+                initialValues.id 
+                ? () => history.push(`/events/${initialValues.id}`) 
+                : () => history.push(`/events`)
+              } 
+              type="button" >Cancel</Button>
+          </Form>
+        </Segment>
+        </Grid.Column>
+      </Grid>
+      
     )
   }
 }
 
-export default connect(mapState, mapDispatch)(EventForm)
+export default connect(mapState, mapDispatch)((reduxForm({form: 'eventForm', validate}))(EventForm))

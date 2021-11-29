@@ -2,19 +2,21 @@ import React, { Component } from 'react'
 import {connect} from 'react-redux'
 import { Button } from 'semantic-ui-react'
 import { incrementAction, decrementAction } from './testAction'
-
+import { openModal } from '../modals/modalAction'
 const mapState = ({test}) => ({
   data: test.testData
 })
 const mapDispatch = {
   incrementAction,
-  decrementAction
+  decrementAction,
+  openModal
 }
 
 class TestComponent extends Component {
   
 
   render() {
+    const { openModal } = this.props
     const {data, incrementAction, decrementAction} = this.props
     return (
       <div>
@@ -22,6 +24,7 @@ class TestComponent extends Component {
         <h3>The answer is: {data}</h3>
         <Button color='facebook' content='Increment' onClick={incrementAction} />
         <Button color='olive' content='Decrement' onClick={decrementAction }/>
+        <Button color='pink' content='Open Modal' onClick={() => openModal('TestModal', {data: 42}) }/>
       </div>
     )
   }

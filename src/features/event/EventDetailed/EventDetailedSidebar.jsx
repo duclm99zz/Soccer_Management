@@ -1,5 +1,5 @@
 import React, {Fragment} from 'react'
-import { Item, Label, List, Segment } from 'semantic-ui-react'
+import { Item, Label, List, Segment , Image} from 'semantic-ui-react'
 
 const EventDetailedSidebar = ({attendees}) => {
   const isHost = false
@@ -27,10 +27,13 @@ const EventDetailedSidebar = ({attendees}) => {
               >
                 Host
               </Label>}
-              <Item.Image size='tiny' src={attendee.photoURL}/>
-              <Item.Content verticalAlign='middle'>
-                <Item.Header as='h3'>{attendee.name}</Item.Header>
-              </Item.Content>
+
+                <Image size='tiny' src={attendee.photoURL}/>
+                <Item.Content verticalAlign='middle'>
+                <Item.Header as='h3'></Item.Header>
+                  <Item.Description as='h3'>{attendee.name}</Item.Description>
+                </Item.Content>
+
               
             </Item>
             ))}
