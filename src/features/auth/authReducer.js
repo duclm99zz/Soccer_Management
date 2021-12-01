@@ -19,7 +19,12 @@ const signOut = () => {
     currentUser: null
   }
 }
-
+// const socialLogin = (state, payload) => {
+//   return {
+//     authenticated: true,
+//     currentUser: payload.
+//   }
+// }
 
 export default createReducer(initialState, {
   [LOGIN_USER]: loginUser,

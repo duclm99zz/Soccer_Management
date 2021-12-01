@@ -44,7 +44,8 @@ const validate = combineValidators({
     hasLengthGreaterThan(4)({message: 'Description needs to be at least 5 charaters'})
   )(),
   city: isRequired({message: 'City is required'}),
-  venue: isRequired({message: 'Venue is required'})
+  venue: isRequired({message: 'Venue is required'}),
+  date: isRequired({message: 'Date is required'})
 
 }) 
 
@@ -55,7 +56,6 @@ class EventForm extends Component {
 
   onFormSubmit = (values) => {
 
-    console.log(values)
     if (this.props.initialValues.id) {
       this.props.updateEvent(values)
       this.props.history.push(`/events/${this.props.initialValues.id}`)
@@ -81,7 +81,7 @@ class EventForm extends Component {
         <Grid.Column width={10}>
         <Segment>
           <Header sub color='teal' content='Event Details' />
-          <Form onSubmit={this.props.handleSubmit(this.onFormSubmit)}>
+          <Form >
             <Field 
               name='title' 
               component={TextInput}

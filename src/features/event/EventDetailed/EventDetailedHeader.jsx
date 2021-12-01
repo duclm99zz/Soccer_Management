@@ -20,7 +20,7 @@ const EventDetailedHeader = ({event}) => {
   return (
     <Segment.Group>
       <Segment basic attached="top" style={{ padding: '0' }}>
-        <Image style={eventImageStyle} src="/assets/drinks.jpg" fluid />
+        <Image style={eventImageStyle} src="public/assets/drinks.jpg" fluid />
 
         <Segment basic style={eventImageTextStyle}>
           <Item.Group>
@@ -31,7 +31,7 @@ const EventDetailedHeader = ({event}) => {
                   content={event.title}
                   style={{ color: 'pink' }}
                 />
-                <p>{event.date.toString().slice(0, 16)}</p>
+                <p>{event.date && event.date.toString().slice(0, 18)}</p>
                 <p>
                   Hosted by <strong>{event.hostedBy}</strong>
                 </p>
