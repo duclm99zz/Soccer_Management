@@ -4,18 +4,38 @@ import { Grid } from 'semantic-ui-react'
 import SettingsNav from './SettingsNav'
 import BasicPage from './BasicPage'
 import AboutPage from './AboutPage'
-import PhotosPage from './PhotosPage'
+import PhotosPage from './Photo/PhotosPage'
 import AccountPage from './AccountPage'
-const SettingsDashboard = () => {
+import {connect} from 'react-redux'
+import {updatePassword} from '../../auth/authAction'
+import {updateProfile} from '../userAction'
+const mapState = (state) =>  ({
+  providerId: state.firebase.auth.providerData && state.firebase.auth.providerData[0].providerId ? state.firebase.auth.providerData[0].providerId : '',
+  user: state.firebase.profile
+})
+const actions = {
+  updatePassword,
+  updateProfile
+
+}
+
+
+const SettingsDashboard = ({updatePassword, providerId, user, updateProfile}) => {
   return (
     <Grid>
       <Grid.Column width={12}>
         <Switch>
           <Redirect exact from='/settings' to='/settings/basic' />
-          <Route path='/settings/basic' component={BasicPage} />
-          <Route path='/settings/about' component={AboutPage} />
+          <Route 
+            path='/settings/basic' 
+            render={() => <BasicPage initialValues={user} updateProfile={updateProfile} />} 
+          />
+          <Route path='/settings/about' render={ () => <AboutPage initialValues={user} updateProfile={updateProfile} />} />
           <Route path='/settings/photos' component={PhotosPage} />
-          <Route path='/settings/account' component={AccountPage} />
+          <Route 
+            path='/settings/account' 
+            render={() => <AccountPage updatePassword={updatePassword} providerId={providerId}/>}
+          />
         </Switch>
       </Grid.Column>
       <Grid.Column width={4}>
@@ -26,4 +46,4 @@ const SettingsDashboard = () => {
   )
 }
 
-export default SettingsDashboard
+export default connect(mapState, actions)(SettingsDashboard)
