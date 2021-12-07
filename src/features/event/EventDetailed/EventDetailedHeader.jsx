@@ -1,4 +1,5 @@
-import React from 'react'
+import { format } from 'date-fns';
+import React, { Fragment } from 'react'
 import { Link } from 'react-router-dom';
 import { Button, Header, Image, Item, Segment } from 'semantic-ui-react'
 
@@ -16,11 +17,12 @@ const eventImageTextStyle = {
 };
 
 
-const EventDetailedHeader = ({event}) => {
+const EventDetailedHeader = ({event, isHost, isGoing, goingToEvent, cancelGoingEvent}) => {
+
   return (
     <Segment.Group>
       <Segment basic attached="top" style={{ padding: '0' }}>
-        <Image style={eventImageStyle} src="public/assets/drinks.jpg" fluid />
+        <Image style={eventImageStyle} src={`/assets/${event.category}.jpg`} fluid />
 
         <Segment basic style={eventImageTextStyle}>
           <Item.Group>
@@ -31,7 +33,7 @@ const EventDetailedHeader = ({event}) => {
                   content={event.title}
                   style={{ color: 'pink' }}
                 />
-                <p>{event.date && event.date.toString().slice(0, 18)}</p>
+                <p>{event.date && format(event.date.toDate(),'EEEE do LLLL')}</p>
                 <p>
                   Hosted by <strong>{event.hostedBy}</strong>
                 </p>
@@ -41,13 +43,23 @@ const EventDetailedHeader = ({event}) => {
         </Segment>
       </Segment>
 
-      <Segment attached="bottom">
-        <Button>Cancel My Place</Button>
-        <Button color="teal">JOIN THIS EVENT</Button>
-
-        <Button as={Link} to={`/manage/${event.id}`} color="orange" floated="right">
-          Manage Event
-        </Button>
+      <Segment attached="bottom" clearing>
+        {!isHost &&
+          <Fragment> 
+            {isGoing ? 
+              <Button color='instagram' onClick={() => cancelGoingEvent(event)}>Cancel My Place</Button>
+              : <Button onClick={() => goingToEvent(event)} color="teal">JOIN THIS EVENT</Button>
+            }
+            
+            
+          </Fragment>
+        }
+        {isHost && 
+          <Button as={Link} to={`/manage/${event.id}`} color="orange" floated="right">
+            Manage Event
+          </Button>
+        }
+        
       </Segment>
     </Segment.Group>
   )
