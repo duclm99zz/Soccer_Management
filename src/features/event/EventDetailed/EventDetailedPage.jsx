@@ -49,7 +49,7 @@ class EventDetailedPage extends Component {
 
   render() {
     const {event, auth, goingToEvent, cancelGoingEvent} = this.props
-    const attendees = event && event.attendees && objectToArray(event.attendees)
+    const attendees = (event && event.attendees && objectToArray(event.attendees)) || []
     const isHost = event.hostUid === auth.uid
     const isGoing = attendees && attendees.some(a => a.id === auth.uid)
     return (
@@ -61,10 +61,8 @@ class EventDetailedPage extends Component {
         </Grid.Column>
         <Grid.Column width={6}>
           {attendees.length > 0 && <EventDetailedSidebar attendees={attendees}/>}
-          
         </Grid.Column>
       </Grid>
-  
     )
   }
  

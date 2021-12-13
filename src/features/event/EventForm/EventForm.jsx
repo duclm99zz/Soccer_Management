@@ -66,7 +66,8 @@ class EventForm extends Component {
         this.props.history.push(`/events/${this.props.initialValues.id}`)
       } else {
         const createdEvent = await this.props.createEvent(values)
-        this.props.history.push(`/events/${createdEvent.id}`)
+        setTimeout(() => this.props.history.push(`/events/${createdEvent.id}`), 2000)
+        
       }
     } catch (error) {
       console.log(error)

@@ -2,6 +2,9 @@ import { toastr } from "react-redux-toastr"
 import { asyncError, asyncFinish, asyncStart } from "../async/asyncAction"
 import cuid from "cuid"
 
+import firebase from '../../app/config/firebase'
+import { FETCH_EVENT } from "../event/eventConstants"
+
 
 export const updateProfile = (user) => {
   return async (dispatch, getState, {getFirebase}) => {
@@ -101,6 +104,45 @@ export const setMainPhoto = (photo) => {
     } catch (error) {
       console.log(error)
       throw new Error('Problem setting main photo')
+    }
+  }
+}
+
+export const getUserEvents = (userUid, activeTab) => {
+  return async (dispatch, getState) => {
+    dispatch(asyncStart())
+    const firestore = firebase.firestore()
+    const today = new Date(Date.now())
+    let eventRef  = firestore.collection('Event_Attendee')
+    let query
+    switch (activeTab) {
+      case 1: // past event
+        query = eventRef.where('userUid', '==', userUid).where('eventDate', '<=', today).orderBy('eventDate', 'desc')
+        break;
+      case 2: // future event
+        query = eventRef.where('userUid', '==', userUid).where('eventDate', '>=', today).orderBy('eventDate')
+        break
+      case 3: // host event
+        query = eventRef.where('userUid', '==', userUid).where('host', '==', true).orderBy('eventDate', 'desc')
+        break
+      default:
+        query = eventRef.where('userUid', '==', userUid).orderBy('eventDate', 'desc')
+    }
+    try {
+      let querySnap = await query.get()
+      let events = []
+
+      for (let i = 0; i < querySnap.docs.length; i++) {
+        let evt = await firestore.collection('Events').doc(querySnap.docs[i].data().eventId).get()
+        events.push({...evt.data(), id: evt.id})
+      }
+      dispatch({type: FETCH_EVENT, payload: {events}})
+
+      console.log(querySnap)
+      dispatch(asyncFinish())
+    } catch (error) {
+      dispatch(asyncError())
+      console.log(error)
     }
   }
 }

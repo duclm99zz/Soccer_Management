@@ -8,6 +8,7 @@ import EventListAttendee from './EventListAttendee'
 class EventListItem extends Component {
   render() {
     const  {event} = this.props
+
     return (
       <Segment.Group>
         <Segment>
@@ -15,15 +16,20 @@ class EventListItem extends Component {
             <Item>
               <Item.Image size='mini' circular src={event.hostPhotoURL} />
               <Item.Content>
-                <Item.Header as={Link} to={`/events/${event.id}`}>{event.title}</Item.Header>
-                <br/>
-                <Item.Description as={Link} to={`/profile/${event.hostUid}`} >
-                  Hosted by {event.hostedBy}
+                <Item.Header >
+                  <Link to={`/events/${event.id}`}> 
+                    {event.title}
+                  </Link>
+                  
+                </Item.Header>
+                
+                <Item.Description  >
+                  Hosted by <Link to={`/profile/${event.hostUid}`}> {event.hostedBy}</Link> 
                 </Item.Description>
                 {event.cancelled && 
                     <Label 
                       style={{top: '-1px'}}
-                      corner='right'
+                      ribbon='right'
                       
                       color='pink'
                       content='This event has been cancelled'

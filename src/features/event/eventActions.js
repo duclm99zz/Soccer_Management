@@ -1,9 +1,12 @@
-import {   FETCH_EVENT, UPDATE_EVENT } from "./eventConstants"
-import {asyncError, asyncFinish, asyncStart} from '../async/asyncAction'
-import { fetchSample } from "../../app/data/mockAPI"
+
+// import {asyncError, asyncFinish, asyncStart} from '../async/asyncAction'
+// import { fetchSample } from "../../app/data/mockAPI"
 // import { ASYNC_ACTION_START } from "../async/asyncConstant"
+import firebase  from "../../app/config/firebase"
 import { toastr } from "react-redux-toastr"
 import {createNewEvent} from '../../app/common/utils/helpers'
+import { FETCH_EVENT } from "./eventConstants"
+import { asyncFinish, asyncStart } from "../async/asyncAction"
 
 
 
@@ -39,7 +42,6 @@ export const updateEvent = (event) => {
 
     try {
       await firestore.update(`Events/${event.id}`, event)
-      dispatch({type: UPDATE_EVENT, payload: {event}})
       toastr.success('Success!', 'Event has been updated')
     } catch (error) {
       toastr.error('Oops!', 'Something went wrong')
@@ -94,16 +96,40 @@ export const goingToEvent = (event) => {
 }
 
 
-export const loadEvent = () => {
-  return async dispatch => {
+export const getEventsDashboard = (lastEvent) => {
+  return async (dispatch, getState) => {
+    const today = new Date()
+    const firestore = firebase.firestore()
+    const eventsRef = firestore.collection('Events')
     try {
       dispatch(asyncStart())
-      const events = await fetchSample()
+      let startAfter = lastEvent && await firestore.collection('Events').doc(lastEvent.id).get()
+      let query
+
+      lastEvent ? query = eventsRef.where('date', '>=' ,today).orderBy('date').startAfter(startAfter).limit(2)
+      : query = eventsRef.where('date', '>=' ,today).orderBy('date').limit(2)
+
+      
+      let querySnap = await query.get()
+
+      if (querySnap.docs.length === 0) {
+        dispatch(asyncFinish())
+        return querySnap
+      }
+
+
+      // let querySnap = await eventsRef.get()
+      let events = []
+      for (let i = 0; i < querySnap.docs.length; i++) {
+        let e = {...querySnap.docs[i].data(), id: querySnap.docs[i].id}
+        events.push(e)
+      }
       dispatch({type: FETCH_EVENT, payload: {events}})
       dispatch(asyncFinish())
+      return querySnap
     } catch (error) {
       console.log(error)
-      dispatch(asyncError())
+
     }
   }
 }

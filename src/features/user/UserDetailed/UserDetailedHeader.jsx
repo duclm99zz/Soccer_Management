@@ -1,6 +1,7 @@
 import { differenceInYears } from 'date-fns'
 import React from 'react'
-import { Grid, Header, Item, Segment } from 'semantic-ui-react'
+import { Grid, Header, Item, Segment, Image } from 'semantic-ui-react'
+import LazyLoad from 'react-lazyload'
 
 const UserDetailedHeader = ({profile}) => {
   let age = 0
@@ -15,7 +16,12 @@ const UserDetailedHeader = ({profile}) => {
       <Segment>
         <Item.Group>
           <Item>
-            <Item.Image avatar size='small' src={profile.photoURL}/>
+            <LazyLoad
+              height={150} placeholder={<Image src={"/assets/user.png"}/>}
+            >
+              <Item.Image avatar size='small' src={profile.photoURL}/>
+            </LazyLoad>
+            
             <Item.Content verticalAlign='bottom'>
               <Header as='h1'>{profile.displayName}</Header>
               <br/>
